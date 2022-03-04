@@ -1,0 +1,45 @@
+name: "Build Golang Outputs"
+
+on:
+  release:
+    types:
+      - created
+env:
+  BINARY_NAME: 'wait-for'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        if: success() && startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request'
+        with:
+          version: latest
+          args: release --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract branch name
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        id: vars
+        run: echo "##[set-output name=sha;]$(echo $GITHUB_SHA )"
+      - name: Upload Artifacts to Release
+        if: success() && startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: "${{ github.workspace }}/dist/*.gz,${{ github.workspace }}/dist/*.tar,${{ github.workspace }}/dist/*.zip"
+          name: ${{ github.event.release.tag_name }}
+          tag: ${{ github.event.release.tag_name }}
+          commit: ${{ steps.vars.outputs.sha }}
+          draft: ${{ github.event.release.draft }}
+          prerelease: ${{ github.event.release.prerelease }}
+          token: ${{ secrets.CYNALYTICA_OAT }}

@@ -1,0 +1,33 @@
+project_name: wait-for
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - 386
+    goos:
+      - linux
+      - windows
+      - darwin
+    binary: 'wait-for'
+    ldflags:
+      - "-w"
+      - "-s"
+    hooks:
+      post:
+        - 'upx -9 {{ .Path }}'
+archives:
+  - replacements: &archiveReplacements
+      386: i386
+      amd64: x86_64
+    id: zip
+    format: zip
+  - replacements: *archiveReplacements
+    id: tar
+    format: tar
+  - replacements: *archiveReplacements
+    id: tar.gz
+    format: gz
