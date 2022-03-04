@@ -75,13 +75,16 @@ var (
 	commandFlags arrayFlags
 	timeoutFlag  *int
 	intervalFlag *int
+	showVersion  *bool
+	version      = "dev"
 )
 
 func init() {
 	timeoutFlag = flag.Int("timeout", 60, "Timeout until script is killed.")
 	intervalFlag = flag.Int("interval", 250, "Interval between calls")
+	showVersion = flag.Bool("version", false, "Version")
 	flag.Var(&waitsFlags, "wait", "You can specify the HOST and TCP PORT using the format HOST:PORT, or you can specify a command that should return an output. Multiple wait flags can be added.")
-	flag.Var(&commandFlags, "command", "Command that should be run when all waits are accessible. Multiple commands can be added.")
+	flag.Var(&commandFlags, "command", "Command that should be run when all waits are accessible")
 	flag.Parse()
 }
 func main() {
@@ -89,6 +92,10 @@ func main() {
 }
 
 func Exec() {
+	if *showVersion {
+		fmt.Println(version)
+		return
+	}
 	if len(waitsFlags) == 0 || len(commandFlags) == 0 {
 		fmt.Println("You must specify at least a wait and a command. Please see --help for more information.")
 		return

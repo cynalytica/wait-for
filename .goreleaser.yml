@@ -12,22 +12,11 @@ builds:
       - linux
       - windows
       - darwin
-    binary: 'wait-for'
+    binary: 'wait-for-{{ .Os }}-{{ .Arch }}'
     ldflags:
       - "-w"
       - "-s"
+      - "-X main.version={{ .Version }}"
     hooks:
       post:
         - 'upx -9 {{ .Path }}'
-archives:
-  - replacements: &archiveReplacements
-      386: i386
-      amd64: x86_64
-    id: zip
-    format: zip
-  - replacements: *archiveReplacements
-    id: tar
-    format: tar
-  - replacements: *archiveReplacements
-    id: tar.gz
-    format: gz
