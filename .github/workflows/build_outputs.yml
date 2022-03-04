@@ -42,4 +42,3 @@ jobs:
           commit: ${{ steps.vars.outputs.sha }}
           draft: ${{ github.event.release.draft }}
           prerelease: ${{ github.event.release.prerelease }}
-          token: ${{ secrets.CYNALYTICA_OAT }}
